@@ -1,9 +1,12 @@
 package com.chatApp.backend.ChatAppBackend.controller;
 
+import com.chatApp.backend.ChatAppBackend.dtos.LoginUserDto;
 import com.chatApp.backend.ChatAppBackend.dtos.RegisterUserDto;
 import com.chatApp.backend.ChatAppBackend.models.User;
 import com.chatApp.backend.ChatAppBackend.service.AuthService;
 import com.chatApp.backend.ChatAppBackend.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.SameSiteCookies;
@@ -43,13 +46,31 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody String userInfo) {
-        return ResponseEntity.ok("You have been Authenticated");
+    public ResponseEntity<?> authenticate(@RequestBody @Valid LoginUserDto loginUserDto) {
+        String jwt = authService.authenticate(loginUserDto);
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite(SameSiteCookies.STRICT.toString())
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Login Successful"));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody String userInfo) {
-        return ResponseEntity.ok("You have been Logged Out");
-    }
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        ResponseCookie expiredCookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0) // <--- expire it immediately
+                .build();
 
+        response.setHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+        response.setStatus(HttpServletResponse.SC_OK);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, expiredCookie.toString())
+                .body(Map.of("message", "Logout Successful"));
+    }
 }
