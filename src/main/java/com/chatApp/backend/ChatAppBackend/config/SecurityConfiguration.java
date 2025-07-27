@@ -27,18 +27,16 @@ public class SecurityConfiguration {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;;
     }
 
+    // SecurityFilterChain contains the core security logic, rules for route access and JWT filter logic are defined hre only
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**")
-                .permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/profile-update").authenticated()
-                .anyRequest()
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .requestMatchers("/check").authenticated()
+                .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

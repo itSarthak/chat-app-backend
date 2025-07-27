@@ -27,6 +27,26 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ProfileImageEmptyException.class)
+    public ResponseEntity<?> handleProfileImageEmptyException(ProfileImageEmptyException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", HttpStatus.NOT_FOUND.value(),
+                "error", "Not Found",
+                "message", ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(CloudinaryUploadException.class)
+    public ResponseEntity<?> handleCloudinaryUploadException(CloudinaryUploadException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "error", "Internal Server Error",
+                "message", ex.getMessage()
+        ));
+    }
+
     @ExceptionHandler(UserCreationFailureException.class)
     public ResponseEntity<?> handleUserCreationFailureException(UserCreationFailureException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

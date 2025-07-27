@@ -13,10 +13,7 @@ import org.apache.tomcat.util.http.SameSiteCookies;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -72,5 +69,11 @@ public class AuthController {
         response.setStatus(HttpServletResponse.SC_OK);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, expiredCookie.toString())
                 .body(Map.of("message", "Logout Successful"));
+    }
+    @GetMapping("/check")
+    public ResponseEntity<?> checkIfAuthenticated() {
+        return ResponseEntity.ok().body(Map.of(
+                "message","User Authenticated"
+        ));
     }
 }
