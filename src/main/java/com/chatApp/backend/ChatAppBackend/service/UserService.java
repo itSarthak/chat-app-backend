@@ -1,10 +1,12 @@
 package com.chatApp.backend.ChatAppBackend.service;
 
 import com.chatApp.backend.ChatAppBackend.dtos.ImageUpdateDto;
+import com.chatApp.backend.ChatAppBackend.dtos.UserDto;
 import com.chatApp.backend.ChatAppBackend.exception.CloudinaryUploadException;
 import com.chatApp.backend.ChatAppBackend.exception.ProfileImageEmptyException;
 import com.chatApp.backend.ChatAppBackend.models.User;
 import com.chatApp.backend.ChatAppBackend.repository.UserRepository;
+import com.chatApp.backend.ChatAppBackend.utils.UserMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,14 +17,20 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+
     private final CloudinaryService cloudinaryService;
+
+    private final UserMapper userMapper;
     
-    public UserService(UserRepository userRepository, CloudinaryService cloudinaryService) {
+    public UserService(UserRepository userRepository,
+                       CloudinaryService cloudinaryService,
+                       UserMapper userMapper) {
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
+        this.userMapper = userMapper;
     }
 
-    public String updateProfile(String userEmail, ImageUpdateDto image) {
+    public UserDto updateProfile(String userEmail, ImageUpdateDto image) {
         if (image.getName().isEmpty()) {
             throw new ProfileImageEmptyException("Profile Image Name cannot be Empty");
         }
@@ -32,12 +40,14 @@ public class UserService {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not found with the email" + userEmail));
-        String uploadUrl = cloudinaryService.uploadFile(image.getFile(), "ChatApp_profile");
-        user.setProfilePic(uploadUrl);
+        String profileUrl = cloudinaryService.uploadFile(image.getFile(), "ChatApp_profile");
+        user.setProfilePic(profileUrl);
         if (user.getProfilePic() == null) {
             throw new CloudinaryUploadException("Failed to upload profile image to cloudinary");
         }
-        return "Image has been successfully updated";
+        userRepository.save(user);
+        UserDto userDto = userMapper.toUserDto(user);
+        return userDto;
     }
 
 }

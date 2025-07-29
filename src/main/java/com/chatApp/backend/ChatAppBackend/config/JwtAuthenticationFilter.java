@@ -3,6 +3,7 @@ package com.chatApp.backend.ChatAppBackend.config;
 import com.chatApp.backend.ChatAppBackend.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOError;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -43,15 +45,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NotNull HttpServletResponse response,
             @NotNull FilterChain filterChain
             ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        Cookie[] cookies = request.getCookies();
+        final String authHeader = Arrays
+                .stream(cookies)
+                .filter(cookie -> cookie.getName().equals("jwt"))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            final String jwt = authHeader.substring(7);
+            final String jwt = authHeader;
             final String userEmail = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,6 +24,8 @@ import java.util.List;
 @Document(collection = "user")
 @Accessors(chain = true)
 public class User implements UserDetails {
+    @Id
+    private String id;
 
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")

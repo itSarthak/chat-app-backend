@@ -1,8 +1,9 @@
 package com.chatApp.backend.ChatAppBackend.controller;
 
+import com.chatApp.backend.ChatAppBackend.dtos.ImageUpdateDto;
 import com.chatApp.backend.ChatAppBackend.dtos.LoginUserDto;
 import com.chatApp.backend.ChatAppBackend.dtos.RegisterUserDto;
-import com.chatApp.backend.ChatAppBackend.models.User;
+import com.chatApp.backend.ChatAppBackend.dtos.UserDto;
 import com.chatApp.backend.ChatAppBackend.service.AuthService;
 import com.chatApp.backend.ChatAppBackend.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RestController
 @Slf4j
 public class AuthController {
@@ -30,31 +31,33 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterUserDto registerUserDto) {
-        String jwt = authService.signup(registerUserDto);
-        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+         Map<String, Object> res = authService.signup(registerUserDto);
+        ResponseCookie cookie = ResponseCookie.from("jwt", res.get("jwt").toString())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .sameSite(SameSiteCookies.STRICT.toString())
+                .maxAge(3600)
                 .build();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Signup Successful"));
+                .body(res.get("user"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticate(@RequestBody @Valid LoginUserDto loginUserDto) {
-        String jwt = authService.authenticate(loginUserDto);
+    public ResponseEntity<Object> authenticate(@RequestBody @Valid LoginUserDto loginUserDto) {
+        Map<String, Object> res = authService.authenticate(loginUserDto);
 
-        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+        ResponseCookie cookie = ResponseCookie.from("jwt", res.get("jwt").toString())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite(SameSiteCookies.STRICT.toString())
+                .sameSite("None")
+                .maxAge(3600)
                 .build();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Login Successful"));
+                .body(res.get("user"));
     }
 
     @PostMapping("/logout")
@@ -71,9 +74,9 @@ public class AuthController {
                 .body(Map.of("message", "Logout Successful"));
     }
     @GetMapping("/check")
-    public ResponseEntity<?> checkIfAuthenticated() {
-        return ResponseEntity.ok().body(Map.of(
-                "message","User Authenticated"
-        ));
+    public ResponseEntity<UserDto> checkIfAuthenticated(HttpServletRequest request) {
+        String userEmail = request.getUserPrincipal().getName();
+        UserDto userDto = authService.isUserAuthenticated(userEmail);
+        return ResponseEntity.ok().body(userDto);
     }
 }
