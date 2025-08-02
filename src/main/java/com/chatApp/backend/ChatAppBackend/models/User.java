@@ -1,5 +1,6 @@
 package com.chatApp.backend.ChatAppBackend.models;
 
+import com.chatApp.backend.ChatAppBackend.validation.UsernameConstruct;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,18 +15,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "user")
 @Accessors(chain = true)
+
 public class User implements UserDetails {
     @Id
-    private String id;
+    private String _id;
 
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")
@@ -38,7 +38,12 @@ public class User implements UserDetails {
     @Size(min = 6, message = "Password must be atleast 6 characters long")
     private String password;
 
+    @UsernameConstruct
+    private String chattyUserName;
+
     private String profilePic;
+
+    private Map<String, Object> extraData;
 
     @CreatedDate
     private Date createdAt;
@@ -50,7 +55,6 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
-
 
     @Override
     public String getUsername() {

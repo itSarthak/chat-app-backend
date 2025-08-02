@@ -7,6 +7,8 @@ import java.util.Date;
 @Data
 public class UserDto {
 
+    private String _id;
+
     private String email;
 
     private String fullName;
@@ -14,5 +16,7 @@ public class UserDto {
     private String profilePic;
 
     private Date createdAt;
+
+    private String chattyUsername;
 
 }

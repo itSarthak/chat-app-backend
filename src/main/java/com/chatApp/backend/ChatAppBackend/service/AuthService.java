@@ -75,7 +75,7 @@ public class AuthService {
         );
         if (authenticatedUser.isAuthenticated()) {
             User authUser =  userRepository.findByEmail(loginUserDto.getEmail())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found at auth level"));
             UserDto userDto = userMapper.toUserDto(authUser);
             Map<String, Object> loginPayload= new HashMap<>();
             loginPayload.put("jwt", jwtService.generateToken(authUser));

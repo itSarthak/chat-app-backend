@@ -1,5 +1,6 @@
 package com.chatApp.backend.ChatAppBackend.models;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -14,9 +15,11 @@ public class Message {
     private String id;
 
     @DBRef
+    @NotNull
     private User senderId;
 
     @DBRef
+    @NotNull
     private User receiverId;
 
     private String text;

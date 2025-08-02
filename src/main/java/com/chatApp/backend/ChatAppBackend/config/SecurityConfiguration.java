@@ -40,6 +40,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/api/auth/check").authenticated()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/profile-update").authenticated()
+                                .requestMatchers("/api/messages/*").authenticated()
                                 .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session

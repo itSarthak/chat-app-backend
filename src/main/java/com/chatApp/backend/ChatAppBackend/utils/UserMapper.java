@@ -16,6 +16,8 @@ public class UserMapper {
         dto.setFullName(user.getFullName());
         dto.setProfilePic(user.getProfilePic());
         dto.setCreatedAt(user.getCreatedAt());
+        dto.set_id(user.get_id());
+        dto.setChattyUsername(user.getChattyUserName());
 
         return dto;
     }
