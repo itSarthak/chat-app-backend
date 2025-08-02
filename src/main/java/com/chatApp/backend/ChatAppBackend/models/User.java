@@ -22,7 +22,6 @@ import java.util.*;
 @AllArgsConstructor
 @Document(collection = "user")
 @Accessors(chain = true)
-
 public class User implements UserDetails {
     @Id
     private String _id;

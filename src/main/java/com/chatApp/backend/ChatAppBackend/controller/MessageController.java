@@ -1,15 +1,13 @@
 package com.chatApp.backend.ChatAppBackend.controller;
 
+import com.chatApp.backend.ChatAppBackend.dtos.MessageDto;
 import com.chatApp.backend.ChatAppBackend.dtos.UserDto;
 import com.chatApp.backend.ChatAppBackend.models.Message;
 import com.chatApp.backend.ChatAppBackend.service.MessageService;
 import com.chatApp.backend.ChatAppBackend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,6 +40,14 @@ public class MessageController {
         String sender_id = userService.fetchUserIdFromMail(userEmail);
         List<Message> chatHistory = messageService.fetchMessages(sender_id, receiver_id);
         return ResponseEntity.ok().body(chatHistory);
+    }
+
+    @PostMapping("/send/{receiver_id}")
+    public ResponseEntity<Message> sendMessage(@PathVariable String receiver_id, @RequestBody MessageDto message, HttpServletRequest request) {
+        String userEmail = request.getUserPrincipal().getName();
+        String senderId = userService.fetchUserIdFromMail(userEmail);
+        Message newMessage = messageService.sendMessage(senderId, receiver_id, message);
+        return ResponseEntity.status(201).body(newMessage);
     }
 
 

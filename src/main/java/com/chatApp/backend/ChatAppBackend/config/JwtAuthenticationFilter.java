@@ -46,6 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NotNull FilterChain filterChain
             ) throws ServletException, IOException {
         Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         final String authHeader = Arrays
                 .stream(cookies)
                 .filter(cookie -> cookie.getName().equals("jwt"))

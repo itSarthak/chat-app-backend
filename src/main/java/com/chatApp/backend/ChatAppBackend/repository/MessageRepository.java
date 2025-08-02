@@ -5,9 +5,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MessageRepository extends MongoRepository<Message, String> {
-    @Query("{'senderId': ?#{[0]}, 'receiverId': ?#{[1]}}")
-    List<Message> findMessageByID(String senderId, String receiverId);
+
+    @Query("{$or: [ { 'sender._id': ?0, 'receiver._id': ?1 }, { 'sender._id': ?1, 'receiver._id': ?0 } ] }")
+    List<Message> findMessagesBetweenUsers(String senderId, String receiverId);
 }
