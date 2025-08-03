@@ -6,15 +6,19 @@ import com.chatApp.backend.ChatAppBackend.models.Message;
 import com.chatApp.backend.ChatAppBackend.models.User;
 import com.chatApp.backend.ChatAppBackend.repository.MessageRepository;
 import com.chatApp.backend.ChatAppBackend.repository.UserRepository;
+import com.chatApp.backend.ChatAppBackend.service.socket.OnlineUserManager;
 import com.chatApp.backend.ChatAppBackend.utils.UserMapper;
+import com.corundumstudio.socketio.SocketIOServer;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MessageService {
@@ -26,16 +30,24 @@ public class MessageService {
 
     private final CloudinaryService cloudinaryService;
 
+    private final OnlineUserManager onlineUserManager;
+
+    private final SocketIOServer socketIOServer;
+
     public MessageService(
             UserRepository userRepository,
             UserMapper userMapper,
             MessageRepository messageRepository,
-            CloudinaryService cloudinaryService
+            CloudinaryService cloudinaryService,
+            OnlineUserManager onlineUserManager,
+            SocketIOServer socketIOServer
     ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.messageRepository = messageRepository;
         this.cloudinaryService = cloudinaryService;
+        this.onlineUserManager = onlineUserManager;
+        this.socketIOServer = socketIOServer;
     }
 
     public List<UserDto> fetchFriendList(String userEmail) {
@@ -65,6 +77,10 @@ public class MessageService {
         newMessage.setSender(sender);
         newMessage.setReceiver(receiver);
         messageRepository.save(newMessage);
+        String receiverSocketId = onlineUserManager.getSocketIdByUserId(receiverId);
+        if (receiverSocketId != null) {
+            socketIOServer.getClient(UUID.fromString(receiverSocketId)).sendEvent("newMessage", newMessage);
+        }
         return newMessage;
     }
 }

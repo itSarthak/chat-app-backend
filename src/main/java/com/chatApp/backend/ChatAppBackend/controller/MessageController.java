@@ -7,6 +7,7 @@ import com.chatApp.backend.ChatAppBackend.service.MessageService;
 import com.chatApp.backend.ChatAppBackend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,11 +45,11 @@ public class MessageController {
 
     @PostMapping("/send/{receiver_id}")
     public ResponseEntity<Message> sendMessage(@PathVariable String receiver_id, @RequestBody MessageDto message, HttpServletRequest request) {
+
         String userEmail = request.getUserPrincipal().getName();
         String senderId = userService.fetchUserIdFromMail(userEmail);
         Message newMessage = messageService.sendMessage(senderId, receiver_id, message);
         return ResponseEntity.status(201).body(newMessage);
     }
-
 
 }

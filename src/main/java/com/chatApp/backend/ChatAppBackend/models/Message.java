@@ -9,9 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.Instant;
+import java.util.*;
 
 @Data
 @Document(collection = "messages")
@@ -33,8 +31,8 @@ public class Message {
     private String image;
 
     @CreatedDate
-    private Instant createdAt;
+    private Date createdAt;
 
     @LastModifiedDate
-    private Instant updatedAt;
+    private Date updatedAt;
 }
