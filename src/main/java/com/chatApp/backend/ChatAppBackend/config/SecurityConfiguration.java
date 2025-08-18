@@ -37,6 +37,7 @@ public class SecurityConfiguration {
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests(auth ->
                         auth
+                                .requestMatchers("/socket-io").authenticated()
                                 .requestMatchers("/api/auth/check").authenticated()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/profile-update").authenticated()
