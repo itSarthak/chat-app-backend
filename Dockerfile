@@ -20,13 +20,12 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Copy env.properties file
-COPY env.properties ./env.properties
 
 # Set environment variable so Spring Boot picks env.properties
-ENV SPRING_CONFIG_IMPORT=file:env.properties
+
 
 # Only expose Netty socket.io port (8081)
-EXPOSE 8081
+EXPOSE 8092
 
 # Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
