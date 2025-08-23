@@ -1,29 +1,32 @@
-# Stage 1: Build the Spring Boot application
-FROM openjdk:21-jdk-slim AS build
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+
 WORKDIR /app
-COPY .mvn .mvn
-COPY mvnw pom.xml ./
-RUN ./mvnw dependency:go-offline -B
+
+# Copy pom.xml and download dependencies first (caching)
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+# Copy source code and build
 COPY src ./src
-RUN ./mvnw package -DskipTests
+RUN mvn clean package -DskipTests
 
-# Stage 2: Create the final image with Nginx
-FROM nginx:alpine
-
-# Install OpenJDK JRE to run the Spring Boot application
-RUN apk add --no-cache openjdk21-jre-headless
+# Stage 2: Run the application
+FROM eclipse-temurin:21-jdk AS runtime
 
 WORKDIR /app
 
-# Copy the Nginx configuration template
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy the built JAR from the build stage
+COPY --from=build /app/target/*.jar app.jar
 
-# Copy the executable JAR file and the env.properties file
-COPY --from=build /app/target/*.jar /app/app.jar
-COPY env.properties /app/env.properties
+# Copy env.properties file
+COPY env.properties ./env.properties
 
-# Expose the ports for Nginx to listen on
-EXPOSE 8070
+# Set environment variable so Spring Boot picks env.properties
+ENV SPRING_CONFIG_IMPORT=file:env.properties
 
-# The command to run the Nginx and Spring Boot services
-CMD ["/bin/sh", "-c", "java -jar /app/app.jar & nginx -g 'daemon off;'"]
+# Only expose Netty socket.io port (8081)
+EXPOSE 8081
+
+# Run the app
+ENTRYPOINT ["java", "-jar", "app.jar"]

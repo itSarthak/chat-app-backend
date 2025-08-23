@@ -36,7 +36,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite(SameSiteCookies.STRICT.toString())
+                .sameSite(SameSiteCookies.NONE.toString())
                 .maxAge(3600)
                 .build();
         return ResponseEntity.ok()
