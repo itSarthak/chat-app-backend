@@ -3,6 +3,16 @@ pipeline {
     environment {
         KOYEB_API_KEY = credentials('koyeb-api')
         KOYEB_REDEPLOYMENT_URL = credentials('koyeb-deployment-url')
+        CLOUDINARY_API_SECRET = credentials('CLOUDINARY_API_SECRET')
+        CLOUDINARY_API_KEY = credentials('CLOUDINARY_API_KEY')
+        CLOUDINARY_CLOUD_NAME = credentials('CLOUDINARY_CLOUD_NAME')
+        CLOUDINARY_URL = credentials('CLOUDINARY_URL')
+        JWT_EXPIRATION_TIME = credentials('JWT_EXPIRATION_TIME')
+        JWT_SECRET_KEY = credentials('JWT_SECRET_KEY')
+        MONGO_URI = credentials('MONGO_URI')
+        MONGO_DB = credentials('MONGO_DB')
+        PORT = credentials('PORT')
+        SOCKET_PORT = credentials('SOCKET_PORT')
     }
     options {
         skipDefaultCheckout()
