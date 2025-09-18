@@ -41,7 +41,7 @@ pipeline {
         }
         stage('Sonar') {
             steps {
-                withSonarQubeEnv('sonarqube-25.5.0.107428') {
+                withSonarQubeEnv('MySonarServer') {
                     sh 'mvn sonar:sonar'
                 }
             }
