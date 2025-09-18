@@ -15,8 +15,7 @@ public class SocketIOConfiguration {
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname("0.0.0.0");
         config.setPort(socketPort);
-        config.setOrigin("*");
-
+        config.setOrigin("https://www.chatbackend.space, https://dev.chatbackend.space");
 
         return new SocketIOServer(config);
     }
