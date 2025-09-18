@@ -13,6 +13,7 @@ pipeline {
         MONGO_DB = credentials('MONGO_DB')
         PORT = credentials('PORT')
         SOCKET_PORT = credentials('SOCKET_PORT')
+        SOCKET_ORIGIN = credentials('SOCKET_ORIGIN')
     }
     options {
         skipDefaultCheckout()

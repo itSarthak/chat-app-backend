@@ -10,12 +10,15 @@ public class SocketIOConfiguration {
     @Value("${socket.port}")
     private int socketPort;
 
+    @Value("${socket.origin}")
+    private String origin;
+
     @Bean
     public SocketIOServer socketIOServer() {
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname("0.0.0.0");
         config.setPort(socketPort);
-        config.setOrigin("https://www.chatbackend.space, https://dev.chatbackend.space");
+        config.setOrigin(origin);
 
         return new SocketIOServer(config);
     }
