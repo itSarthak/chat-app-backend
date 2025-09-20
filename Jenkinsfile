@@ -14,6 +14,7 @@ pipeline {
         PORT = credentials('PORT')
         SOCKET_PORT = credentials('SOCKET_PORT')
         SOCKET_ORIGIN = credentials('SOCKET_ORIGIN')
+        SERVER_ORIGIN = credentials('SERVER_ORIGIN')
     }
     options {
         skipDefaultCheckout()
