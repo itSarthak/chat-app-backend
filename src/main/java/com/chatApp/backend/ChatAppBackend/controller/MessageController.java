@@ -1,6 +1,7 @@
 package com.chatApp.backend.ChatAppBackend.controller;
 
 import com.chatApp.backend.ChatAppBackend.dtos.MessageDto;
+import com.chatApp.backend.ChatAppBackend.dtos.ReceiveMessageDto;
 import com.chatApp.backend.ChatAppBackend.dtos.UserDto;
 import com.chatApp.backend.ChatAppBackend.models.Message;
 import com.chatApp.backend.ChatAppBackend.service.MessageService;
@@ -11,6 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -37,17 +39,26 @@ public class MessageController {
     }
 
     @GetMapping("/{receiver_id}")
-    public ResponseEntity<List<Message>> getUserMessages(@PathVariable String receiver_id, HttpServletRequest request) {
+    public ResponseEntity<List<ReceiveMessageDto>> getUserMessages(@PathVariable String receiver_id, HttpServletRequest request) {
         String userEmail = request.getUserPrincipal().getName();
         String sender_id = userService.fetchUserIdFromMail(userEmail);
-        List<Message> chatHistory = messageService.fetchMessages(sender_id, receiver_id);
+        List<ReceiveMessageDto> chatHistory = messageService.fetchMessages(sender_id, receiver_id);
         return ResponseEntity.ok().body(chatHistory);
     }
+
+    @GetMapping("/{receiver_id}/{createdAt}")
+    public ResponseEntity<List<ReceiveMessageDto>> getUserMessagesPaginated(@PathVariable String receiver_id, @PathVariable String createdAt, HttpServletRequest request) {
+        String userEmail = request.getUserPrincipal().getName();
+        String sender_id = userService.fetchUserIdFromMail(userEmail);
+        List<ReceiveMessageDto> chatHistory = messageService.fetchMessagesPaginated(sender_id, receiver_id, createdAt);
+        return ResponseEntity.ok().body(chatHistory);
+    }
+
 
     @PostMapping("/send/{receiver_id}")
     public ResponseEntity<Message> sendMessage(
             @PathVariable String receiver_id,
-            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam("text") String text,
             HttpServletRequest request
     ) {

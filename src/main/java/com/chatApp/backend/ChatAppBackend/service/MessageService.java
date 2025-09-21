@@ -1,24 +1,27 @@
 package com.chatApp.backend.ChatAppBackend.service;
 
 import com.chatApp.backend.ChatAppBackend.dtos.MessageDto;
+import com.chatApp.backend.ChatAppBackend.dtos.ReceiveMessageDto;
 import com.chatApp.backend.ChatAppBackend.dtos.UserDto;
 import com.chatApp.backend.ChatAppBackend.models.Message;
 import com.chatApp.backend.ChatAppBackend.models.User;
 import com.chatApp.backend.ChatAppBackend.repository.MessageRepository;
 import com.chatApp.backend.ChatAppBackend.repository.UserRepository;
 import com.chatApp.backend.ChatAppBackend.service.socket.OnlineUserManager;
+import com.chatApp.backend.ChatAppBackend.utils.DateParser;
+import com.chatApp.backend.ChatAppBackend.utils.MessageMapper;
 import com.chatApp.backend.ChatAppBackend.utils.UserMapper;
 import com.corundumstudio.socketio.SocketIOServer;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MessageService {
@@ -34,13 +37,19 @@ public class MessageService {
 
     private final SocketIOServer socketIOServer;
 
+    private final MessageMapper messageMapper;
+
+    private final DateParser dateParser;
+
     public MessageService(
             UserRepository userRepository,
             UserMapper userMapper,
             MessageRepository messageRepository,
             CloudinaryService cloudinaryService,
             OnlineUserManager onlineUserManager,
-            SocketIOServer socketIOServer
+            SocketIOServer socketIOServer,
+            MessageMapper messageMapper,
+            DateParser dateParser
     ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -48,6 +57,8 @@ public class MessageService {
         this.cloudinaryService = cloudinaryService;
         this.onlineUserManager = onlineUserManager;
         this.socketIOServer = socketIOServer;
+        this.messageMapper = messageMapper;
+        this.dateParser = dateParser;
     }
 
     public List<UserDto> fetchFriendList(String userEmail) {
@@ -58,12 +69,28 @@ public class MessageService {
                 .toList();
     }
 
-    public List<Message> fetchMessages(String senderId, String receiverId) {
+    public List<ReceiveMessageDto> fetchMessages(String senderId, String receiverId) {
         List<Message> messageHistory = messageRepository.findMessagesBetweenUsers(senderId, receiverId);
-        messageHistory.sort(Comparator.comparing(Message::getCreatedAt));
-        //        List<Message> messageHistory = messageRepository.();
-        return messageHistory;
+        List<ReceiveMessageDto> messagesDtoHistory= new ArrayList<>();
+        for (Message message : messageHistory) {
+            messagesDtoHistory.add(messageMapper.toReceiveMessageDto(message));
+        }
+        messagesDtoHistory.sort(Comparator.comparing(ReceiveMessageDto::getCreatedAt));
+        return messagesDtoHistory;
     }
+
+    public List<ReceiveMessageDto> fetchMessagesPaginated(String senderId, String receiverId, String createdAt) {
+        Pageable pageable = PageRequest.of(
+                0,
+                15,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+        Date createdAtFormatted = dateParser.parseStringToDate(createdAt);
+        List<Message> messages = messageRepository.findMessagesBeforeDate(senderId, receiverId, createdAtFormatted, pageable);
+        return messages.stream()
+                .map(messageMapper::toReceiveMessageDto)
+                .toList().reversed();
+    }
+
 
     public Message sendMessage(String senderId, String receiverId, MessageDto messageDto) {
         Message newMessage = new Message();
@@ -79,7 +106,7 @@ public class MessageService {
         messageRepository.save(newMessage);
         String receiverSocketId = onlineUserManager.getSocketIdByUserId(receiverId);
         if (receiverSocketId != null) {
-            socketIOServer.getClient(UUID.fromString(receiverSocketId)).sendEvent("newMessage", newMessage);
+            socketIOServer.getClient(UUID.fromString(receiverSocketId)).sendEvent("newMessage", messageMapper.toReceiveMessageDto(newMessage));
         }
         return newMessage;
     }
