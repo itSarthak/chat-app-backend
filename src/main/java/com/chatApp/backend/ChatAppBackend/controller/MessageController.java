@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -44,8 +45,17 @@ public class MessageController {
     }
 
     @PostMapping("/send/{receiver_id}")
-    public ResponseEntity<Message> sendMessage(@PathVariable String receiver_id, @RequestBody MessageDto message, HttpServletRequest request) {
-
+    public ResponseEntity<Message> sendMessage(
+            @PathVariable String receiver_id,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("text") String text,
+            HttpServletRequest request
+    ) {
+        MessageDto message = new MessageDto();
+        message.setText(text);
+        if(null != file) {
+            message.setImage(file);
+        }
         String userEmail = request.getUserPrincipal().getName();
         String senderId = userService.fetchUserIdFromMail(userEmail);
         Message newMessage = messageService.sendMessage(senderId, receiver_id, message);
