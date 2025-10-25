@@ -82,7 +82,7 @@ public class MessageService {
     public List<ReceiveMessageDto> fetchMessagesPaginated(String senderId, String receiverId, String createdAt) {
         Pageable pageable = PageRequest.of(
                 0,
-                15,
+                25,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         Date createdAtFormatted = dateParser.parseStringToDate(createdAt);
         List<Message> messages = messageRepository.findMessagesBeforeDate(senderId, receiverId, createdAtFormatted, pageable);

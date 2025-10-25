@@ -1,6 +1,5 @@
 package com.chatApp.backend.ChatAppBackend.repository;
 
-import com.chatApp.backend.ChatAppBackend.dtos.ReceiveMessageDto;
 import com.chatApp.backend.ChatAppBackend.models.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;

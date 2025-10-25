@@ -41,6 +41,8 @@ public class User implements UserDetails {
     private String chattyUserName;
 
     private String profilePic;
+    
+    private List<Friends> friendList;
 
     private Map<String, Object> extraData;
 

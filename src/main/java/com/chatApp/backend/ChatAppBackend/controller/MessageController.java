@@ -20,7 +20,6 @@ import java.util.List;
 public class MessageController {
     private final UserService userService;
 
-
     private final MessageService messageService;
 
     public MessageController(

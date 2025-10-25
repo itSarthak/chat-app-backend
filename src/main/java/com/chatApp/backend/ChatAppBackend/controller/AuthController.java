@@ -1,6 +1,5 @@
 package com.chatApp.backend.ChatAppBackend.controller;
 
-import com.chatApp.backend.ChatAppBackend.dtos.ImageUpdateDto;
 import com.chatApp.backend.ChatAppBackend.dtos.LoginUserDto;
 import com.chatApp.backend.ChatAppBackend.dtos.RegisterUserDto;
 import com.chatApp.backend.ChatAppBackend.dtos.UserDto;
@@ -23,10 +22,8 @@ import java.util.Map;
 @Slf4j
 public class AuthController {
     private final AuthService authService;
-    private final JwtService jwtService;
     public AuthController(AuthService authService, JwtService jwtService) {
         this.authService = authService;
-        this.jwtService = jwtService;
     }
 
     @PostMapping("/signup")

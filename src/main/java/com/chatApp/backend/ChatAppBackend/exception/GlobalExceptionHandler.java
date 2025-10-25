@@ -16,6 +16,18 @@ import java.util.Map;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(FriendRequestDoesNotExistsException.class)
+    public ResponseEntity<?> handleFriendRequestDoesNotExistsException(FriendRequestDoesNotExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", HttpStatus.BAD_REQUEST.value(),
+                        "error", "Bad Request",
+                        "message", ex.getMessage()
+                ));
+    }
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<?> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -78,13 +90,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGenericException(Exception ex) {
+    public ResponseEntity<?> handleGenericException(String ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
                         "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         "error", "Server Error",
-                        "message", ex.getMessage()
+                        "message", ex
                 ));
     }
 }
